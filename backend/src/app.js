@@ -8,7 +8,7 @@ const Port = process.env.PORT | 8000;
 const adminRoute = require("./routes/admins");
 
 app.use(express.json());
-app.use(adminRoute);
+app.use("/admin", adminRoute);
 
 app.listen(Port, () => {
   console.log("Server connected at port 8000");
