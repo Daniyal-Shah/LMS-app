@@ -1,25 +1,28 @@
 const express = require("express");
 const router = express.Router();
-const Joi = require("joi");
 const bcrypt = require("bcrypt");
-const Admin = require("../models/admin");
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
+const { Admin, validate } = require("../models/admin");
 
 router.post("/register", async (req, res) => {
-  const { error } = validateAdmin(req.body);
+  try {
+    const { error } = validate(req.body);
 
-  if (error) return res.status(400).send(error.details);
+    if (error) return res.status(400).send(error.details);
 
-  let admin = await Admin.findOne({ email: req.body.email });
-  if (admin) return res.status(400).send("Try different email");
+    let admin = await Admin.findOne({ email: req.body.email });
+    if (admin) return res.status(400).send("Try different email");
 
-  admin = new Admin(req.body);
-  admin.password = await bcrypt.hash(admin.password, 10);
-  admin.token = admin.generateAuthToken();
-  await admin.save();
+    admin = new Admin(req.body);
+    admin.password = await bcrypt.hash(admin.password, 10);
+    admin.token = admin.generateAuthToken();
+    await admin.save();
 
-  res.status(200).json(admin);
+    res.status(200).send(admin);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 router.post("/login", auth, async (req, res) => {
@@ -35,9 +38,7 @@ router.post("/login", auth, async (req, res) => {
     const admin = await Admin.findOne({ email });
 
     if (admin && (await bcrypt.compare(password, admin.password))) {
-      const token = jwt.sign({ _id: admin._id, email }, "jwtPrivateKey", {
-        expiresIn: "2h",
-      });
+      const token = jwt.sign({ _id: admin._id, email }, "jwtPrivateKey");
 
       admin.token = token;
       res.status(201).json(admin);
@@ -48,15 +49,5 @@ router.post("/login", auth, async (req, res) => {
     res.status(500).send(error);
   }
 });
-
-const validateAdmin = (user) => {
-  const schema = Joi.object({
-    name: Joi.string().required().max(50),
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8).max(50),
-  });
-
-  return schema.validate(user);
-};
 
 module.exports = router;
