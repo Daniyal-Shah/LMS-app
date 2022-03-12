@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 
-const { Teacher, validate } = require("../models/teacher");
+//Collections
+const { Teacher, validateTeacher } = require("../models/teacher");
+const { Course, validateCourse } = require("../models/course");
+
 const passport = require("passport");
 router.use(passport.initialize());
 
@@ -10,7 +13,7 @@ require("../middlewares/teacherAuth");
 
 router.post("/register", async (req, res) => {
   try {
-    const { error } = validate(req.body);
+    const { error } = validateTeacher(req.body);
     if (error) res.status(400).send(error.details);
 
     let teacher = await Teacher.findOne({ email: req.body.email });
@@ -53,11 +56,12 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get(
-  "/add_Course",
+router.post(
+  "/addCourse",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    res.status(201).send(req.user);
+    const course = new Course(req.body);
+    res.status(201).send(course);
   }
 );
 

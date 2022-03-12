@@ -17,7 +17,8 @@ const teacherSchema = mongoose.Schema({
 teacherSchema.methods.generateAuthToken = function () {
   return jwt.sign({ id: this._id }, "jwtPrivateKey", { expiresIn: "1d" });
 };
-function validate(item) {
+
+function validateTeacher(item) {
   const schema = Joi.object({
     name: Joi.string().required().max(50),
     email: Joi.string().required().email(),
@@ -31,4 +32,4 @@ function validate(item) {
 // dateCreated: Joi.date().,
 const Teacher = mongoose.model("Teacher", teacherSchema);
 
-module.exports = { Teacher, validate };
+module.exports = { Teacher, validateTeacher };

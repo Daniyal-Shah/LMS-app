@@ -1,5 +1,5 @@
 require("./db/conn");
-const Admin = require("./models/admin");
+
 const express = require("express");
 const app = express();
 const Port = process.env.PORT | 8000;

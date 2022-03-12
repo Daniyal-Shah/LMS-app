@@ -8,7 +8,6 @@ const { Admin, validate } = require("../models/admin");
 router.post("/register", async (req, res) => {
   try {
     const { error } = validate(req.body);
-
     if (error) return res.status(400).send(error.details);
 
     let admin = await Admin.findOne({ email: req.body.email });
@@ -18,7 +17,6 @@ router.post("/register", async (req, res) => {
     admin.password = await bcrypt.hash(admin.password, 10);
     admin.token = admin.generateAuthToken();
     await admin.save();
-
     res.status(200).send(admin);
   } catch (error) {
     res.status(500).send(error);
