@@ -13,10 +13,9 @@ const teacherSchema = mongoose.Schema({
   courses: { type: Array, default: [] },
   dateCreated: { type: Date, default: Date.now() },
   password: { type: String, required: true, max: 50, min: 8 },
-  token: { type: String },
 });
 teacherSchema.methods.generateAuthToken = function () {
-  return jwt.sign({ _id: this._id }, "jwtPrivateKey");
+  return jwt.sign({ id: this._id }, "jwtPrivateKey", { expiresIn: "1d" });
 };
 function validate(item) {
   const schema = Joi.object({
