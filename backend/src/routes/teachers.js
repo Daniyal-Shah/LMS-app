@@ -91,6 +91,40 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get(
+  "/courses",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const courses = await Course.find({ teacherId: req.user.teacherId });
+      if (!courses)
+        return res.status(401).send("No courses are created by this teacher");
+
+      res.status(201).send(courses);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);
+
+router.get(
+  "/courses/:courseId",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const courses = await Course.findOne({
+        teacherId: req.user.teacherId,
+        _id: req.params.courseId,
+      });
+      if (!courses) return res.status(401).send("No such course");
+
+      res.status(201).send(courses);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);
+
 router.post(
   "/courses",
   passport.authenticate("jwt", { session: false }),
