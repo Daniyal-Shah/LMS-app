@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 
 const teacherSchema = mongoose.Schema({
+  teacherId: { type: String, required: true, unique: true, min: 5 },
   name: { type: String, required: true, max: 50 },
   email: { type: String, required: true, unique: true },
   department: {

@@ -27,7 +27,7 @@ function validateCourse(user) {
     name: Joi.string().required().max(50),
     department: Joi.string().required(),
     enrollmentCode: Joi.string().required().min(5).max(15),
-    dateCreated: Joi.date().required(),
+    dateCreated: Joi.date(),
     enrolledStudents: Joi.array().required(),
   });
 
