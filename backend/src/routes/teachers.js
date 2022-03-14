@@ -43,25 +43,48 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     // Get user input
-    const { email, password } = req.body;
+    const { email, password, teacherId } = req.body;
 
-    // Validate user input
-    if (!(email && password)) {
-      res.status(400).send("All inputs are required");
+    if (email) {
+      // Validate user input
+      if (!(email && password)) {
+        res.status(400).send("All inputs are required");
+      }
+      // Validate if user exist in our database
+      let teacher = await Teacher.findOne({ email });
+
+      if (teacher && (await bcrypt.compare(password, teacher.password))) {
+        const token = teacher.generateAuthToken();
+
+        res.status(201).send({
+          success: true,
+          token: "Bearer " + token,
+          message: "User Logged In Successfully",
+        });
+      } else {
+        res.status(400).send("Invalid Credentials");
+      }
     }
-    // Validate if user exist in our database
-    let teacher = await Teacher.findOne({ email });
 
-    if (teacher && (await bcrypt.compare(password, teacher.password))) {
-      const token = teacher.generateAuthToken();
+    if (teacherId) {
+      // Validate user input
+      if (!(teacherId && password)) {
+        res.status(400).send("All inputs are required");
+      }
+      // Validate if user exist in our database
+      let teacher = await Teacher.findOne({ teacherId });
 
-      res.status(201).send({
-        success: true,
-        token: "Bearer " + token,
-        message: "User Logged In Successfully",
-      });
-    } else {
-      res.status(400).send("Invalid Credentials");
+      if (teacher && (await bcrypt.compare(password, teacher.password))) {
+        const token = teacher.generateAuthToken();
+
+        res.status(201).send({
+          success: true,
+          token: "Bearer " + token,
+          message: "User Logged In Successfully",
+        });
+      } else {
+        res.status(400).send("Invalid Credentials");
+      }
     }
   } catch (error) {
     res.status(500).send(error);
