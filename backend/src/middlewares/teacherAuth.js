@@ -4,6 +4,7 @@ var JwtStrategy = require("passport-jwt").Strategy,
 const passport = require("passport");
 const { Teacher } = require("../models/teacher");
 var opts = {};
+
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = "jwtPrivateKey";
 

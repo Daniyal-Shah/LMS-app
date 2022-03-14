@@ -14,7 +14,7 @@ require("../middlewares/teacherAuth");
 router.post("/register", async (req, res) => {
   try {
     const { error } = validateTeacher(req.body);
-    if (error) res.status(400).send(error.details);
+    if (error) return res.status(400).send(error.details);
 
     let teacher = await Teacher.findOne({ email: req.body.email });
     if (teacher) return res.status(400).send("You are already signed up");
@@ -97,17 +97,16 @@ router.post(
   async (req, res) => {
     try {
       const { error } = validateCourse(req.body);
-      if (error) res.status(400).send(error.details);
+      if (error) return res.status(400).send(error.details);
 
       let course = await Course.findOne({
         enrollmentCode: req.body.enrollmentCode,
       });
       if (course) return res.status(400).send("Try different enrollment code");
       course = new Course(req.body);
-
-      course.password = await bcrypt.hash(course.enrollmentCode, 10);
-      await course.save();
-      res.status(201).send(course);
+      // course.enrollmentCode = await bcrypt.hash(course.enrollmentCode, 10);
+      const result = await course.save();
+      res.status(201).send(result);
     } catch (error) {
       res.status(500).send(error);
     }
@@ -115,23 +114,57 @@ router.post(
 );
 
 router.delete(
-  "/courses",
+  "/courses/:courseId",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      const courseId = req.body.courseId;
-      const teacherId = req.body.teacherId;
+      const courseId = req.params.courseId;
+      const teacherId = req.user.teacherId;
 
-      console.log(courseId + " " + teacherId);
-      const foundCourse = await Course.findById(courseId);
-      console.log(foundCourse);
-      if (!foundCourse) res.status(404).send("No such course");
+      if (courseId && teacherId) {
+        const foundCourse = await Course.findOne({
+          _id: courseId,
+        });
 
-      if (foundCourse && foundCourse.teacherId !== teacherId)
-        res.status(404).send("You are not teacher of this course");
+        if (!foundCourse) return res.status(404).send("No such course");
 
-      // const result = await Course.findByIdAndDelete({ _id: courseId });
-      // res.status(200).send(result);
+        if (foundCourse && foundCourse.teacherId !== teacherId)
+          return res.status(404).send("You are not teacher of this course");
+
+        const result = await Course.findByIdAndDelete({
+          _id: courseId,
+          teacherId,
+        });
+        res.status(200).send(result);
+      } else {
+        res.status(401).send("Both teacher and course id's are required");
+      }
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }
+);
+
+router.put(
+  "/courses/:courseId",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      console.log(req.params.courseId);
+      console.log(req.user.teacherId);
+
+      const foundCourse = await Course.findById({ _id: req.params.courseId });
+      if (!foundCourse) return res.status(401).send("Somwthing went wrong");
+
+      if (foundCourse.teacherId !== req.user.teacherId)
+        return res.status(401).send("You are not teacher of this course");
+
+      const updated = await Course.findByIdAndUpdate(
+        { _id: req.params.courseId },
+        req.body,
+        { new: true }
+      );
+      res.status(201).send(updated);
     } catch (error) {
       res.status(500).send(error.message);
     }
