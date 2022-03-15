@@ -11,7 +11,7 @@ const teacherSchema = mongoose.Schema({
     enum: ["BBA", "CS", "EE", "AAF", "BED", "NA"],
     default: "NA",
   },
-  courses: { type: Array, default: [] },
+  courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
   dateCreated: { type: Date, default: Date.now() },
   password: { type: String, required: true, max: 50, min: 8 },
 });

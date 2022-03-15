@@ -44,7 +44,7 @@ router.post("/register", async (req, res) => {
     const result = await student.save();
     res.status(201).send(result);
   } catch (error) {}
-  res.status(500).send(error.message);
+  res.status(500).send(error);
 });
 
 router.post("/login", async (req, res) => {
@@ -119,20 +119,25 @@ router.post(
         if (!course) return res.status(401).send("No such course found");
 
         course.enrolledStudents.push({
-          enrolledDate: Date.now(),
           studentId: req.user.studentId,
+          submissions: [],
+          enrolledDate: Date.now(),
         });
-        // course.enrolledStudents = [...course.enrolledStudents, "new student"];
 
-        // const result = await course.save();
-        res.send(course);
+        const student = await Student.findById({ _id: req.user._id });
+        student.courses.push(course._id);
+
+        const result1 = await course.save();
+        const result2 = await student.save();
+
+        res.send([course, student]);
       } else {
         res
           .status(401)
           .send("Enrollment code must be a string having length (5 to 15");
       }
     } catch (error) {
-      res.status(500).send(error.message);
+      res.status(500).send(error);
     }
   }
 );

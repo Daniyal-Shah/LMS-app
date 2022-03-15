@@ -48,4 +48,7 @@ router.post("/login", auth, async (req, res) => {
   }
 });
 
+router.get("/test", (req, res) => {
+  res.send("pass");
+});
 module.exports = router;

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-
+// const fawn = require("fawn");
+var mongoose = require("mongoose");
 mongoose
   .connect("mongodb://localhost:27017/lms", {
     // useCreateIndex: true,
@@ -12,3 +12,5 @@ mongoose
   .catch((err) => {
     console.log("Something faile in connecting database");
   });
+
+// fawn.init(mongoose);
