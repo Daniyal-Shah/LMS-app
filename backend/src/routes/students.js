@@ -2,10 +2,33 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 
+var JwtStrategy = require("passport-jwt").Strategy,
+  ExtractJwt = require("passport-jwt").ExtractJwt;
+
 const passport = require("passport");
+var opts = {};
+
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = "jwtPrivateKey";
+
+passport.use(
+  new JwtStrategy(opts, function (jwt_payload, done) {
+    Student.findOne({ id: jwt_payload.id }, function (err, user) {
+      if (err) {
+        return done(err, false);
+      }
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false);
+        // or you could create a new account
+      }
+    });
+  })
+);
 router.use(passport.initialize());
 
-require("../middlewares/studentAuth");
+// require("../middlewares/studentAuth");
 
 const { Student, validate } = require("../models/student");
 const { Course } = require("../models/course");
@@ -43,8 +66,9 @@ router.post("/register", async (req, res) => {
     student.password = await bcrypt.hash(student.password, 10);
     const result = await student.save();
     res.status(201).send(result);
-  } catch (error) {}
-  res.status(500).send(error);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 router.post("/login", async (req, res) => {
@@ -59,7 +83,6 @@ router.post("/login", async (req, res) => {
       }
       // Validate if user exist in our database
       let student = await Student.findOne({ email });
-      console.log(student);
       if (!student) return res.status(401).send("Not found such user");
 
       if (student && (await bcrypt.compare(password, student.password))) {
@@ -105,6 +128,7 @@ router.post(
   "/enroll/:courseId",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
+    return res.send(req.user);
     try {
       const { enrollmentCode } = req.body;
       if (
@@ -116,6 +140,7 @@ router.post(
           enrollmentCode: req.body.enrollmentCode,
         });
 
+        console.log(req.user);
         if (!course) return res.status(401).send("No such course found");
 
         course.enrolledStudents.push({

@@ -5,11 +5,8 @@ const bcrypt = require("bcrypt");
 //Collections
 const { Teacher, validateTeacher } = require("../models/teacher");
 const { Course, validateCourse } = require("../models/course");
-
 const passport = require("passport");
-router.use(passport.initialize());
-
-require("../middlewares/teacherAuth");
+// router.use(passport.initialize());
 
 router.post("/register", async (req, res) => {
   try {
@@ -126,15 +123,13 @@ router.get(
 );
 
 router.post(
-  "/courses",
+  "/add_course",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
       const obj = { ...req.body };
-      console.log(req.user);
       obj.teacherId = req.user.teacherId;
       obj.department = req.user.department;
-      console.log(obj);
 
       const { error } = validateCourse(obj);
       if (error) return res.status(400).send(error.details);
