@@ -12,7 +12,7 @@ const test = require("./routes/testing");
 app.use(express.json());
 app.use("/admin", adminRoute);
 app.use("/teacher", teacherRoute);
-app.use("/students", studentRoute);
+app.use("/student", studentRoute);
 app.use(test);
 
 app.listen(Port, () => {

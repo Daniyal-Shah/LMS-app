@@ -1,12 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
+const passport = require("passport");
+router.use(passport.initialize());
 
 //Collections
 const { Teacher, validateTeacher } = require("../models/teacher");
 const { Course, validateCourse } = require("../models/course");
-const passport = require("passport");
-// router.use(passport.initialize());
+
+const getTeacherAuth = require("../middlewares/teacherAuth");
+getTeacherAuth();
 
 router.post("/register", async (req, res) => {
   try {
@@ -127,6 +130,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
+      return res.send(req.user);
       const obj = { ...req.body };
       obj.teacherId = req.user.teacherId;
       obj.department = req.user.department;
@@ -137,6 +141,7 @@ router.post(
       let course = await Course.findOne({
         enrollmentCode: obj.enrollmentCode,
       });
+
       if (course) return res.status(400).send("Try different enrollment code");
       course = new Course(obj);
       // course.enrollmentCode = await bcrypt.hash(course.enrollmentCode, 10);

@@ -1,34 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-
-var JwtStrategy = require("passport-jwt").Strategy,
-  ExtractJwt = require("passport-jwt").ExtractJwt;
-
 const passport = require("passport");
-var opts = {};
-
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = "jwtPrivateKey";
-
-passport.use(
-  new JwtStrategy(opts, function (jwt_payload, done) {
-    Student.findOne({ id: jwt_payload.id }, function (err, user) {
-      if (err) {
-        return done(err, false);
-      }
-      if (user) {
-        return done(null, user);
-      } else {
-        return done(null, false);
-        // or you could create a new account
-      }
-    });
-  })
-);
 router.use(passport.initialize());
 
-// require("../middlewares/studentAuth");
+const getStudentAuth = require("../middlewares/studentAuth");
+getStudentAuth();
 
 const { Student, validate } = require("../models/student");
 const { Course } = require("../models/course");
@@ -48,7 +25,6 @@ router.post("/register", async (req, res) => {
     if (student) return res.status(400).send("Already registered");
 
     student = Student(req.body);
-    student.password = await bcrypt.hash(student.password, 10);
 
     let lastStudent = await Student.find({}).limit(1).sort({ $natural: -1 });
     if (lastStudent.length > 0 && student) {
@@ -67,60 +43,58 @@ router.post("/register", async (req, res) => {
     const result = await student.save();
     res.status(201).send(result);
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send(error.message);
   }
 });
 
 router.post("/login", async (req, res) => {
+  // Get user input
+
+  const { email, password, studentId } = req.body;
+
   try {
-    // Get user input
-    const { email, password, studentId } = req.body;
+    let student = await Student.findOne({ email });
+    if (!student) return res.status(401).send("Not found such user");
 
     if (email) {
-      // Validate user input
-      if (!(email && password)) {
-        res.status(400).send("All inputs are required");
-      }
-      // Validate if user exist in our database
+      if (!(email && password))
+        return res.status(400).send("All inputs are required");
+
       let student = await Student.findOne({ email });
       if (!student) return res.status(401).send("Not found such user");
 
-      if (student && (await bcrypt.compare(password, student.password))) {
+      if (await bcrypt.compare(password, student.password)) {
         const token = student.generateAuthToken();
-
-        res.status(201).send({
+        return res.status(201).send({
           success: true,
           token: "Bearer " + token,
           message: "User Logged In Successfully",
         });
       } else {
-        res.status(400).send("Something went wrong");
+        return res.status(400).send("Something went wrong");
       }
     }
 
-    if (studentId) {
-      // Validate user input
-      if (!(studentId && password)) {
-        res.status(400).send("All inputs are required");
-      }
-      // Validate if user exist in our database
-      let student = await Student.findOne({ studentId });
+    if (!email && studentId) {
+      if (!(studentId && password))
+        return res.status(400).send("All inputs are required");
+
+      let student = await Student.findOne({ email });
       if (!student) return res.status(401).send("Not found such user");
 
-      if (student && (await bcrypt.compare(password, student.password))) {
-        const token = teacher.generateAuthToken();
-
-        res.status(201).send({
+      if (await bcrypt.compare(password, student.password)) {
+        const token = student.generateAuthToken();
+        return res.status(201).send({
           success: true,
           token: "Bearer " + token,
           message: "User Logged In Successfully",
         });
       } else {
-        res.status(400).send("Something went wrong");
+        return res.status(400).send("Something went wrong");
       }
     }
   } catch (error) {
-    res.status(500).send(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -128,7 +102,6 @@ router.post(
   "/enroll/:courseId",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    return res.send(req.user);
     try {
       const { enrollmentCode } = req.body;
       if (
@@ -140,7 +113,6 @@ router.post(
           enrollmentCode: req.body.enrollmentCode,
         });
 
-        console.log(req.user);
         if (!course) return res.status(401).send("No such course found");
 
         course.enrolledStudents.push({
@@ -155,7 +127,7 @@ router.post(
         const result1 = await course.save();
         const result2 = await student.save();
 
-        res.send([course, student]);
+        res.send([result1, result2]);
       } else {
         res
           .status(401)
