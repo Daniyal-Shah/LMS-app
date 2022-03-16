@@ -15,7 +15,7 @@ const studentSchema = mongoose.Schema({
     enum: ["BBA", "CS", "EE", "AAF", "BED", "NA"],
     default: "NA",
   },
-  courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
+  courses: { type: Array, default: [] },
   dateCreated: { type: Date, default: Date.now() },
 });
 

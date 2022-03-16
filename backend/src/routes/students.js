@@ -117,7 +117,7 @@ router.post(
         enrollmentCode.length <= 15
       ) {
         const course = await Course.findOne({
-          enrollmentCode: req.body.enrollmentCode,
+          enrollmentCode,
         });
 
         if (!course) return res.status(401).send("No such course found");
@@ -129,7 +129,7 @@ router.post(
         });
 
         const student = await Student.findById({ _id: req.user._id });
-        student.courses.push(course._id);
+        student.courses.push([course._id, course.name]);
 
         const result1 = await course.save();
         const result2 = await student.save();
