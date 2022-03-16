@@ -97,10 +97,17 @@ router.post("/login", async (req, res) => {
     return res.status(500).send(error);
   }
 });
+router.post(
+  "/test",
+  passport.authenticate("student-rule", { session: false }),
+  async (req, res) => {
+    return res.send(req.user);
+  }
+);
 
 router.post(
   "/enroll/:courseId",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("student-rule", { session: false }),
   async (req, res) => {
     try {
       const { enrollmentCode } = req.body;

@@ -8,12 +8,11 @@ const Port = process.env.PORT | 8000;
 const adminRoute = require("./routes/admins");
 const teacherRoute = require("./routes/teachers");
 const studentRoute = require("./routes/students");
-const test = require("./routes/testing");
+
 app.use(express.json());
 app.use("/admin", adminRoute);
 app.use("/teacher", teacherRoute);
 app.use("/student", studentRoute);
-app.use(test);
 
 app.listen(Port, () => {
   console.log("Server connected at port 8000");

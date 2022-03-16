@@ -11,8 +11,9 @@ module.exports = function () {
   opts.secretOrKey = "jwtPrivateKey";
 
   passport.use(
+    "student-rule",
     new JwtStrategy(opts, function (jwt_payload, done) {
-      Student.findOne({ id: jwt_payload.id }, function (err, user) {
+      Student.findById({ _id: jwt_payload.id }, function (err, user) {
         if (err) {
           return done(err, false);
         }

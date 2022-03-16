@@ -126,11 +126,18 @@ router.get(
 );
 
 router.post(
+  "/test",
+  passport.authenticate("teacher-rule", { session: false }),
+  async (req, res) => {
+    return res.send(req.user);
+  }
+);
+
+router.post(
   "/add_course",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("teacher-rule", { session: false }),
   async (req, res) => {
     try {
-      return res.send(req.user);
       const obj = { ...req.body };
       obj.teacherId = req.user.teacherId;
       obj.department = req.user.department;
