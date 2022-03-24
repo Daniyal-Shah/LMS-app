@@ -2,8 +2,14 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const auth = require("../middlewares/auth");
+
 const { Admin, validate } = require("../models/admin");
+
+const passport = require("passport");
+router.use(passport.initialize());
+
+const getAdminAuth = require("../middlewares/adminAuth");
+getAdminAuth();
 
 router.post("/register", async (req, res) => {
   try {
@@ -15,7 +21,6 @@ router.post("/register", async (req, res) => {
 
     admin = new Admin(req.body);
     admin.password = await bcrypt.hash(admin.password, 10);
-    admin.token = admin.generateAuthToken();
     await admin.save();
     res.status(200).send(admin);
   } catch (error) {
@@ -23,7 +28,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", auth, async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     // Get user input
     const { email, password } = req.body;
@@ -36,10 +41,13 @@ router.post("/login", auth, async (req, res) => {
     const admin = await Admin.findOne({ email });
 
     if (admin && (await bcrypt.compare(password, admin.password))) {
-      const token = jwt.sign({ _id: admin._id, email }, "jwtPrivateKey");
+      const token = admin.generateAuthToken();
 
-      admin.token = token;
-      res.status(201).json(admin);
+      res.status(201).send({
+        user: admin,
+        token,
+        status: "Successfull",
+      });
     } else {
       res.status(400).send("Invalid Credentials");
     }
@@ -48,7 +56,11 @@ router.post("/login", auth, async (req, res) => {
   }
 });
 
-router.get("/test", (req, res) => {
-  res.send("pass");
-});
+router.post(
+  "/testing",
+  passport.authenticate("admin-rule", { session: false }),
+  (req, res) => {
+    res.send(req.headers.authorization);
+  }
+);
 module.exports = router;

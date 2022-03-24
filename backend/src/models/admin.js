@@ -6,16 +6,15 @@ const adminSchema = mongoose.Schema({
   name: { type: String, required: true, max: 50 },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, max: 50, min: 8 },
-  token: { type: String },
 });
 
 adminSchema.methods.generateAuthToken = function () {
-  return jwt.sign({ _id: this._id }, "jwtPrivateKey");
+  return jwt.sign({ id: this._id }, "jwtPrivateKey", { expiresIn: "1d" });
 };
 
 const Admin = mongoose.model("Admin", adminSchema);
 
-function validate(user) {
+function validateAdmin(user) {
   const schema = Joi.object({
     name: Joi.string().required().max(50),
     email: Joi.string().required().email(),
@@ -25,4 +24,4 @@ function validate(user) {
   return schema.validate(user);
 }
 
-module.exports = { Admin, validate };
+module.exports = { Admin, validateAdmin };
