@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const passport = require("passport");
+const multer = require("multer");
 router.use(passport.initialize());
 
 //Collections
@@ -11,6 +12,10 @@ const { Activity } = require("../models/activity");
 
 const getTeacherAuth = require("../middlewares/teacherAuth");
 getTeacherAuth();
+
+router.get("/testActivity", async (req, res) => {
+  res.sendFile("/index.html");
+});
 
 router.post(
   "/activity/:courseId",

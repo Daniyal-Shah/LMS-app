@@ -13,4 +13,14 @@ mongoose
     console.log("Something faile in connecting database");
   });
 
+//creating bucket
+// let bucket;
+// mongoose.connection.on("connected", () => {
+//   var db = mongoose.connections[0].db;
+//   bucket = new mongoose.mongo.GridFSBucket(db, {
+//     bucketName: "newBucket",
+//   });
+//   console.log(bucket);
+// });
+
 // fawn.init(mongoose);

@@ -16,13 +16,19 @@ const activitySchema = mongoose.Schema({
     enum: ["assignment", "quiz", "notes"],
     required: true,
   },
-  visibilty: { type: Boolean, default: true, required: true },
-  submissions: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      refer: "Student",
+
+  notes: {
+    type: mongoose.Schema.Types.Mixed,
+    required: function () {
+      return this.activityType === "notes";
     },
-  ],
+  },
+
+  quiz: {
+    questions: [{}],
+  },
+  visibilty: { type: Boolean, default: true, required: true },
+
   dateCreated: { type: Date, default: Date.now() },
 });
 

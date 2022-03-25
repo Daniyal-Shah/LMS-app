@@ -12,6 +12,10 @@ const { Activity } = require("../models/activity");
 const getTeacherAuth = require("../middlewares/teacherAuth");
 getTeacherAuth();
 
+router.get("/testLogin", async (req, res) => {
+  res.send("login Passed");
+});
+
 router.post("/register", async (req, res) => {
   try {
     const { error } = validateTeacher(req.body);
