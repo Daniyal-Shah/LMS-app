@@ -8,34 +8,49 @@ router.use(passport.initialize());
 //Collections
 const { Teacher, validateTeacher } = require("../models/teacher");
 const { Course, validateCourse } = require("../models/course");
-const { Activity } = require("../models/activity");
+const { Quiz } = require("../models/quiz");
 
 const getTeacherAuth = require("../middlewares/teacherAuth");
 getTeacherAuth();
+
+var storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "../../uploads");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + "-" + Date.now());
+  },
+});
+
+var upload = multer({ storage: storage });
 
 router.get("/testActivity", async (req, res) => {
   res.sendFile("/index.html");
 });
 
 router.post(
-  "/activity/:courseId",
+  "/quiz/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
+
   async (req, res) => {
     try {
-      const courses = await Course.findOne({
+      const course = await Course.findOne({
         teacherId: req.user.teacherId,
         courseId: req.params.courseId,
       });
 
-      if (!courses)
+      if (!course)
         return res.status(400).send("You don't have any such course");
 
-      let activity = new Activity();
-      activity.teacherId = req.user._id;
-      activity.activityType = req.body.type;
-      activity.courseId = req.params.courseId;
+      let quiz = new Quiz();
 
-      const result = await activity.save();
+      quiz.teacherId = req.user._id;
+      quiz.activityType = req.body.type;
+      quiz.courseId = req.params.courseId;
+      quiz.questions = req.body.questions;
+
+      const result = await quiz.save();
+
       res.status(200).send(result);
     } catch (error) {
       res.status(500).send("Something went wrong");

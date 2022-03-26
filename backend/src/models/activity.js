@@ -17,16 +17,21 @@ const activitySchema = mongoose.Schema({
     required: true,
   },
 
-  notes: {
-    type: mongoose.Schema.Types.Mixed,
-    required: function () {
-      return this.activityType === "notes";
-    },
+  quiz: {
+    question: { type: String, required: true },
+    questions: [],
+    options: [
+      {
+        option: { type: String },
+        img: { data: Buffer, contentType: String },
+      },
+    ],
+
+    answers: { type: Array, required: true },
+    startTime: { type: Date, default: Date.now() },
+    endTime: { type: Date, default: Date.now() },
   },
 
-  quiz: {
-    questions: [{}],
-  },
   visibilty: { type: Boolean, default: true, required: true },
 
   dateCreated: { type: Date, default: Date.now() },
