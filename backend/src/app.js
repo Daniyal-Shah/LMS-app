@@ -10,17 +10,19 @@ const adminRoute = require("./routes/admins");
 const teacherActivities = require("./routes/teacher_Activities");
 const teacherLogin = require("./routes/teacher_Login");
 const teacherCourses = require("./routes/teacher_Courses");
-const studentRoute = require("./routes/students");
+const studentLogin = require("./routes/student_Login");
+const studentCourses = require("./routes/student_Courses");
+const studentActivities = require("./routes/student_Activities");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(express.static("public"));
+// app.use(express.static("public"));
 app.use(express.json());
 
 app.use("/admin", adminRoute);
 app.use("/teacher", [teacherActivities, teacherLogin, teacherCourses]);
-app.use("/student", studentRoute);
+app.use("/student", [studentCourses, studentLogin, studentActivities]);
 
 app.listen(Port, () => {
   console.log("Server connected at port 8000");

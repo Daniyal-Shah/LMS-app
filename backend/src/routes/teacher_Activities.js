@@ -15,10 +15,6 @@ getTeacherAuth();
 
 const { notesMulter } = require("../assets/uploads");
 
-router.get("/testActivity", async (req, res) => {
-  res.sendFile("/i(ndex.html");
-});
-
 router.post(
   "/notes/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
