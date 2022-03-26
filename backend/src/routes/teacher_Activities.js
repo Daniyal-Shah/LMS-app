@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-const multer = require("multer");
+
 router.use(passport.initialize());
 
 //Collections
@@ -13,20 +13,24 @@ const { Quiz } = require("../models/quiz");
 const getTeacherAuth = require("../middlewares/teacherAuth");
 getTeacherAuth();
 
-var storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "../../uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.fieldname + "-" + Date.now());
-  },
-});
-
-var upload = multer({ storage: storage });
+const { notesMulter } = require("../assets/uploads");
 
 router.get("/testActivity", async (req, res) => {
-  res.sendFile("/index.html");
+  res.sendFile("/i(ndex.html");
 });
+
+router.post(
+  "/notes/:courseId",
+  passport.authenticate("teacher-rule", { session: false }),
+  notesMulter.array("notes"),
+  async (req, res) => {
+    try {
+      res.send(req.file);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);
 
 router.post(
   "/quiz/:courseId",
@@ -58,6 +62,24 @@ router.post(
   }
 );
 
+router.get(
+  "/quiz/:courseId",
+  passport.authenticate("teacher-rule", { session: false }),
+  async (req, res) => {
+    try {
+      const quizzes = await Quiz.find({
+        courseId: req.params.courseId,
+      });
+
+      if (!quizzes)
+        return res.status(400).send("You don't have any such course");
+
+      res.status(200).send(quizzes);
+    } catch (error) {
+      res.status(500).send("Something went wrong");
+    }
+  }
+);
 // router.get(
 //   "/activity/:_id",
 //   passport.authenticate("teacher-rule", { session: false }),
@@ -73,23 +95,4 @@ router.post(
 //     }
 //   }
 // );
-
-router.get(
-  "/activity/:courseId",
-  passport.authenticate("teacher-rule", { session: false }),
-  async (req, res) => {
-    try {
-      const activities = await Activity.find({
-        courseId: req.params.courseId,
-      });
-
-      if (!activities)
-        return res.status(400).send("You don't have any such course");
-
-      res.status(200).send(activities);
-    } catch (error) {
-      res.status(500).send("Something went wrong");
-    }
-  }
-);
 module.exports = router;
