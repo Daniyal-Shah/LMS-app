@@ -27,23 +27,38 @@ router.post(
       ) {
         const course = await Course.findOne({
           enrollmentCode,
+          _id: req.params.courseId,
         });
 
         if (!course) return res.status(401).send("No such course found");
 
+        let alreadyEnrolled = false;
+        course.enrolledStudents.map((i) => {
+          if (i.studentId === req.user.studentId) {
+            alreadyEnrolled = true;
+          }
+        });
+
+        if (alreadyEnrolled)
+          return res
+            .status(401)
+            .send("You are already enrolled in this course");
+
         course.enrolledStudents.push({
           studentId: req.user.studentId,
-          submissions: [],
+
           enrolledDate: Date.now(),
         });
 
         const student = await Student.findById({ _id: req.user._id });
         student.courses.push([course._id, course.name]);
 
-        const result1 = await course.save();
         const result2 = await student.save();
 
-        res.send([result1, result2]);
+        if (result1 && result2)
+          return res.send(`You are enrolled in ${course.name} course`);
+
+        res.status(400).send("Something went wrong");
       } else {
         res
           .status(401)
