@@ -14,19 +14,49 @@ const getTeacherAuth = require("../middlewares/teacherAuth");
 getTeacherAuth();
 
 const { notesMulter } = require("../assets/uploads");
+const teacherNotes = require("../middlewares/teacherNotes");
+const testMid = require("../middlewares/testMidd");
 
 router.post(
   "/notes/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
-
+  teacherNotes,
   notesMulter.array("notes"),
-
   async (req, res) => {
     try {
-      res.send(req.file);
+      res.send("Notes Uploaded");
     } catch (error) {
       res.status(500).send(error);
     }
+  }
+);
+
+router.get(
+  "/notes/:courseId",
+  passport.authenticate("teacher-rule", { session: false }),
+  async (req, res) => {
+    const course = await Course.findOne({ _id: req.params.courseId });
+
+    if (course.teacherId !== req.user.teacherId)
+      return res.status(401).send("You are not teacher of this course");
+
+    const directoryPath = "./src/assets/notes/";
+    fs.readdir(directoryPath, function (err, files) {
+      if (err) {
+        res.status(500).send({
+          message: "Unable to scan files!",
+        });
+      }
+      let fileInfos = [];
+      files.forEach((file) => {
+        fileInfos.push({
+          name: file,
+          url: baseUrl + file,
+        });
+      });
+      res.status(200).send(fileInfos);
+    });
+    res.status(201).send("You are welcome");
   }
 );
 
@@ -78,19 +108,5 @@ router.get(
     }
   }
 );
-// router.get(
-//   "/activity/:_id",
-//   passport.authenticate("teacher-rule", { session: false }),
-//   async (req, res) => {
-//     try {
-//       const activity = await Activity.findById({ _id: req.params._id });
 
-//       if (!activity) return res.status(400).send("Not found any activity");
-
-//       res.status(200).send(activity);
-//     } catch (error) {
-//       res.status(500).send("Something went wrong");
-//     }
-//   }
-// );
 module.exports = router;
