@@ -53,6 +53,7 @@ router.post(
         const student = await Student.findById({ _id: req.user._id });
         student.courses.push([course._id, course.name]);
 
+        const result1 = await course.save();
         const result2 = await student.save();
 
         if (result1 && result2)

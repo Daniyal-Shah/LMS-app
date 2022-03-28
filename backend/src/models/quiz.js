@@ -27,8 +27,8 @@ const quizSchema = mongoose.Schema({
   submissions: [
     {
       studentId: { type: mongoose.Schema.Types.ObjectId, refer: "Student" },
-      submitAnswers: { type: Array },
-      submissionDate: { type: Array },
+      submitAnswers: { type: Array, required: true },
+      submissionDate: { type: Date, default: Date.now() },
     },
   ],
 

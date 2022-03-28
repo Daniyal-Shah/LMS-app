@@ -25,11 +25,13 @@ router.post(
     if (!quiz) return res.status(400).send("No such quiz found");
 
     const course = await Course.findOne({ _id: quiz.courseId });
+    if (!course)
+      return res.status(401).send("No such course found with this quiz");
 
     let enrollment = false;
 
     course.enrolledStudents.map((i) => {
-      if (i === req.user._id) {
+      if (i.studentId === req.user.studentId) {
         enrollment = true;
       }
     });
@@ -37,7 +39,17 @@ router.post(
     if (!enrollment)
       return res.status(400).send("You are not enrolled in this course");
 
-    res.send(enrollment);
+    if (quiz.questions.length != req.body.answers.length)
+      return res.status(400).send("You have to submit answers of all question");
+
+    let submission = {
+      studentId: req.user.studentId,
+      submitAnswers: req.body.answers,
+    };
+
+    quiz.submissions.push(submission);
+
+    res.send(submission);
   }
 );
 
