@@ -18,7 +18,9 @@ const { notesMulter } = require("../assets/uploads");
 router.post(
   "/notes/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
+
   notesMulter.array("notes"),
+
   async (req, res) => {
     try {
       res.send(req.file);

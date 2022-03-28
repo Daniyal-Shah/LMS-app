@@ -7,7 +7,6 @@ router.use(passport.initialize());
 //Collections
 const { Teacher, validateTeacher } = require("../models/teacher");
 const { Course, validateCourse } = require("../models/course");
-const { Activity } = require("../models/activity");
 
 const getTeacherAuth = require("../middlewares/teacherAuth");
 getTeacherAuth();

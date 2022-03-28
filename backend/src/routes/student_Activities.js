@@ -43,13 +43,14 @@ router.post(
       return res.status(400).send("You have to submit answers of all question");
 
     let submission = {
-      studentId: req.user.studentId,
+      studentId: req.user._id,
       submitAnswers: req.body.answers,
     };
 
     quiz.submissions.push(submission);
+    // const result= await await quiz.save();
 
-    res.send(submission);
+    res.send(quiz);
   }
 );
 
