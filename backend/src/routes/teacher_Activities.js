@@ -2,20 +2,22 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const passport = require("passport");
+const fs = require("fs");
 
 router.use(passport.initialize());
+require("dotenv").config();
 
 //Collections
 const { Teacher, validateTeacher } = require("../models/teacher");
 const { Course, validateCourse } = require("../models/course");
 const { Quiz } = require("../models/quiz");
+const { Note } = require("../models/note");
 
 const getTeacherAuth = require("../middlewares/teacherAuth");
 getTeacherAuth();
 
 const { notesMulter } = require("../assets/uploads");
 const teacherNotes = require("../middlewares/teacherNotes");
-const testMid = require("../middlewares/testMidd");
 
 router.post(
   "/notes/:courseId",
@@ -24,7 +26,28 @@ router.post(
   notesMulter.array("notes"),
   async (req, res) => {
     try {
-      res.send("Notes Uploaded");
+      const note = new Note();
+      note.teacherId = req.user._id;
+      note.courseId = req.params.courseId;
+
+      let arr = [];
+
+      req.files.map((file) => {
+        let index = arr.indexOf(
+          process.env.DIR_PATH + req.dir + "/" + file.filename
+        );
+        if (index == -1) {
+          arr.push(process.env.DIR_PATH + req.dir + "/" + file.filename);
+        } else {
+          arr.splice(index, 1);
+          arr.push(process.env.DIR_PATH + req.dir + "/" + file.filename);
+        }
+      });
+      note.filesPath = arr;
+
+      const result = await note.save();
+
+      res.status(200).send(result);
     } catch (error) {
       res.status(500).send(error);
     }
@@ -34,14 +57,15 @@ router.post(
 router.get(
   "/notes/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
+  teacherNotes,
   async (req, res) => {
     const course = await Course.findOne({ _id: req.params.courseId });
 
     if (course.teacherId !== req.user.teacherId)
       return res.status(401).send("You are not teacher of this course");
 
-    const directoryPath = "./src/assets/notes/";
-    fs.readdir(directoryPath, function (err, files) {
+    fs.readdir(process.env.DIR_PATH + req.dir, function (err, files) {
+      console.log(process.env.DIR_PATH + req.dir);
       if (err) {
         res.status(500).send({
           message: "Unable to scan files!",
@@ -51,12 +75,11 @@ router.get(
       files.forEach((file) => {
         fileInfos.push({
           name: file,
-          url: baseUrl + file,
+          url: process.env.DIR_PATH + req.dir + "/" + file,
         });
       });
       res.status(200).send(fileInfos);
     });
-    res.status(201).send("You are welcome");
   }
 );
 

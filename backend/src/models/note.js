@@ -12,9 +12,9 @@ const noteSchema = mongoose.Schema({
     required: true,
   },
 
-  files: { type: Array },
+  filesPath: { type: Array, unique: true },
 
-  visibilty: { type: Boolean, default: true, required: true },
+  visibilty: { type: Boolean, default: true },
 
   dateCreated: { type: Date, default: Date.now() },
 });
