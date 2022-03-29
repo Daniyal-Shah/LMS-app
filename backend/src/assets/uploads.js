@@ -2,6 +2,8 @@ const multer = require("multer");
 const fs = require("fs");
 const { Note } = require("../models/note");
 
+require("dotenv").config();
+
 const checkDuplication = async (name, direc) => {
   const notes = await Note.find({});
 
@@ -15,14 +17,9 @@ const checkDuplication = async (name, direc) => {
 
   let status = arr.includes(process.env.DIR_PATH + direc + "/" + name);
 
-  console.log(arr);
-  console.log(status);
-
   if (status) {
-    console.log(name + "+");
     return name + "+";
   } else {
-    console.log(name);
     return name;
   }
 };
@@ -32,8 +29,10 @@ var notesStorage = multer.diskStorage({
     cb(null, __dirname + "/notes/" + req.dir);
   },
   filename: async (req, file, cb) => {
-    let name = await checkDuplication(file.filename, req.dir);
-    cb(null, file.filename);
+    file.duplication = true;
+    file.name = process.env.DIR_PATH + req.dir + "/" + file.originalname;
+
+    cb(null, file.originalname);
   },
 });
 

@@ -31,18 +31,23 @@ router.post(
       note.courseId = req.params.courseId;
 
       let arr = [];
-      req.files.map((file) => {
-        arr.push(process.env.DIR_PATH + req.dir + "/" + file.filename);
-      });
 
-      console.log(arr);
+      if (arr.length > 0) {
+        req.files.map((file) => {
+          arr.push(file.name);
+        });
+      }
 
       note.filesPath = arr;
 
       const result = await note.save();
-
       res.status(200).send(result);
     } catch (error) {
+      if (error.code && error.code == 11000) {
+        return res
+          .status(400)
+          .send("Some file are duplicate,kindly change name");
+      }
       res.status(500).send(error);
     }
   }
