@@ -19,6 +19,7 @@ getTeacherAuth();
 const { notesMulter } = require("../assets/uploads");
 const teacherNotes = require("../middlewares/teacherNotes");
 
+//Upload notes
 router.post(
   "/notes/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
@@ -31,53 +32,68 @@ router.post(
       note.courseId = req.params.courseId;
 
       let arr = [];
+      let allNotes = await req.allNotes;
+      let duplicates = [];
 
-      if (arr.length > 0) {
-        req.files.map((file) => {
-          arr.push(file.name);
-        });
-      }
+      req.files.map((file) => {
+        if (allNotes.includes(file.fullname)) {
+          duplicates.push(file.name);
+        } else {
+          arr.push(file.fullname);
+        }
+      });
 
-      note.filesPath = arr;
-
-      const result = await note.save();
-      res.status(200).send(result);
-    } catch (error) {
-      if (error.code && error.code == 11000) {
+      if (arr.length < 1)
         return res
           .status(400)
-          .send("Some file are duplicate,kindly change name");
+          .send({ message: "no file to save, duplications were eliminated" });
+
+      note.filesPath = arr;
+      const result = await note.save();
+
+      if (duplicates.length > 0) {
+        result.replacement_message = {
+          values: duplicates,
+          mistake: "Duplicate file name",
+          action: "Replaced with previous duplicate files",
+        };
       }
+
+      res.status(200).send(result);
+    } catch (error) {
+      // if (error.code && error.code == 11000) {
+      //   return res
+      //     .status(400)
+      //     .send({ message: "Some file are duplicate,kindly change name" });
+      // }
       res.status(500).send(error);
     }
   }
 );
 
+//Get All notes links
 router.get(
   "/notes/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
   teacherNotes,
   async (req, res) => {
-    const course = await Course.findOne({ _id: req.params.courseId });
+    let allNotes = req.allNotes;
+    let allNames = req.allNames;
 
-    if (course.teacherId !== req.user.teacherId)
-      return res.status(401).send("You are not teacher of this course");
+    res.send({ allNotes, allNames });
+  }
+);
 
-    fs.readdir(process.env.DIR_PATH + req.dir, function (err, files) {
-      console.log(process.env.DIR_PATH + req.dir);
-      if (err) {
-        res.status(500).send({
-          message: "Unable to scan files!",
-        });
-      }
-      let fileInfos = [];
-      files.forEach((file) => {
-        fileInfos.push({
-          name: file,
-          url: process.env.DIR_PATH + req.dir + "/" + file,
-        });
-      });
-      res.status(200).send(fileInfos);
+//Get specific note by teacher
+router.get(
+  "/notes/download/:courseId",
+  passport.authenticate("teacher-rule", { session: false }),
+  teacherNotes,
+  async (req, res) => {
+    res.download(req.rootDirectory + "/" + req.body.file, function (error) {
+      if (error.status && error.status == 404)
+        return res.status(404).send({ message: "No such file found" });
+      res.status(404).send({ message: "Something went wrong" });
     });
   }
 );
