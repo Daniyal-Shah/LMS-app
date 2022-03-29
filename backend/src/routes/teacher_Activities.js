@@ -31,18 +31,12 @@ router.post(
       note.courseId = req.params.courseId;
 
       let arr = [];
-
       req.files.map((file) => {
-        let index = arr.indexOf(
-          process.env.DIR_PATH + req.dir + "/" + file.filename
-        );
-        if (index == -1) {
-          arr.push(process.env.DIR_PATH + req.dir + "/" + file.filename);
-        } else {
-          arr.splice(index, 1);
-          arr.push(process.env.DIR_PATH + req.dir + "/" + file.filename);
-        }
+        arr.push(process.env.DIR_PATH + req.dir + "/" + file.filename);
       });
+
+      console.log(arr);
+
       note.filesPath = arr;
 
       const result = await note.save();
