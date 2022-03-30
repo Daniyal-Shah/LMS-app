@@ -29,7 +29,7 @@ var notesStorage = multer.diskStorage({
     cb(null, __dirname + "/notes/" + req.dir);
   },
   filename: async (req, file, cb) => {
-    file.fullname = process.env.DIR_PATH + req.dir + "/" + file.originalname;
+    file.fullPath = process.env.DIR_PATH + req.dir + "/" + file.originalname;
     file.name = file.originalname.split(".")[0];
 
     cb(null, file.originalname);

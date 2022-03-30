@@ -15,8 +15,8 @@ module.exports = async function (req, res, next) {
 
   req.dir = course.name.replaceAll(" ", "_");
 
-  req.allNotes = await getAllNotes();
-  req.allNames = await getAllNames();
+  // req.notePath = await getAllNotes();
+  // req.noteName = await getAllNames();
   req.rootDirectory = process.env.DIR_PATH + req.dir;
 
   if (!fs.existsSync("./src/assets/notes/" + req.dir)) {

@@ -24,40 +24,40 @@ router.post(
   "/notes/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
   teacherNotes,
-  notesMulter.array("notes"),
+  notesMulter.single("notes"),
   async (req, res) => {
     try {
       const note = new Note();
       note.teacherId = req.user._id;
       note.courseId = req.params.courseId;
 
-      let arr = [];
-      let allNotes = await req.allNotes;
-      let duplicates = [];
+      // let arr = [];
+      // let allNotes = await req.allNotes;
+      // let duplicates = [];
 
-      req.files.map((file) => {
-        if (allNotes.includes(file.fullname)) {
-          duplicates.push(file.name);
-        } else {
-          arr.push(file.fullname);
-        }
-      });
+      // req.files.map((file) => {
+      //   if (allNotes.includes(file.fullname)) {
+      //     duplicates.push(file.name);
+      //   } else {
+      //     arr.push(file.fullname);
+      //   }
+      // });
 
-      if (arr.length < 1)
-        return res
-          .status(400)
-          .send({ message: "no file to save, duplications were eliminated" });
+      // if (arr.length < 1)
+      //   return res
+      //     .status(400)
+      //     .send({ message: "no file to save, duplications were eliminated" });
 
-      note.filesPath = arr;
+      note.filesPath = req.file.fullPath;
       const result = await note.save();
 
-      if (duplicates.length > 0) {
-        result.replacement_message = {
-          values: duplicates,
-          mistake: "Duplicate file name",
-          action: "Replaced with previous duplicate files",
-        };
-      }
+      // if (duplicates.length > 0) {
+      //   result.replacement_message = {
+      //     values: duplicates,
+      //     mistake: "Duplicate file name",
+      //     action: "Replaced with previous duplicate files",
+      //   };
+      // }
 
       res.status(200).send(result);
     } catch (error) {
@@ -84,7 +84,7 @@ router.get(
   }
 );
 
-//Get specific note by teacher
+//Download specific note by teacher
 router.get(
   "/notes/download/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
@@ -98,52 +98,14 @@ router.get(
   }
 );
 
-router.post(
-  "/quiz/:courseId",
+//Delete specific note
+router.delete(
+  "/notes/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
-
+  teacherNotes,
   async (req, res) => {
-    try {
-      const course = await Course.findOne({
-        teacherId: req.user.teacherId,
-        courseId: req.params.courseId,
-      });
-
-      if (!course)
-        return res.status(400).send("You don't have any such course");
-
-      let quiz = new Quiz();
-
-      quiz.teacherId = req.user._id;
-      quiz.activityType = req.body.type;
-      quiz.courseId = req.params.courseId;
-      quiz.questions = req.body.questions;
-
-      const result = await quiz.save();
-
-      res.status(200).send(result);
-    } catch (error) {
-      res.status(500).send("Something went wrong");
-    }
-  }
-);
-
-router.get(
-  "/quiz/:courseId",
-  passport.authenticate("teacher-rule", { session: false }),
-  async (req, res) => {
-    try {
-      const quizzes = await Quiz.find({
-        courseId: req.params.courseId,
-      });
-
-      if (!quizzes)
-        return res.status(400).send("You don't have any such course");
-
-      res.status(200).send(quizzes);
-    } catch (error) {
-      res.status(500).send("Something went wrong");
-    }
+    const file = req.body.path;
+    const result = Note.find().select({ properties: 1 });
   }
 );
 
