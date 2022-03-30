@@ -12,7 +12,7 @@ const noteSchema = mongoose.Schema({
     required: true,
   },
 
-  filesPath: { type: String },
+  filesPath: { type: String, unique: true },
 
   visibilty: { type: Boolean, default: true },
 

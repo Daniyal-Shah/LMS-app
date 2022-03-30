@@ -31,41 +31,11 @@ router.post(
       note.teacherId = req.user._id;
       note.courseId = req.params.courseId;
 
-      // let arr = [];
-      // let allNotes = await req.allNotes;
-      // let duplicates = [];
-
-      // req.files.map((file) => {
-      //   if (allNotes.includes(file.fullname)) {
-      //     duplicates.push(file.name);
-      //   } else {
-      //     arr.push(file.fullname);
-      //   }
-      // });
-
-      // if (arr.length < 1)
-      //   return res
-      //     .status(400)
-      //     .send({ message: "no file to save, duplications were eliminated" });
-
       note.filesPath = req.file.fullPath;
       const result = await note.save();
 
-      // if (duplicates.length > 0) {
-      //   result.replacement_message = {
-      //     values: duplicates,
-      //     mistake: "Duplicate file name",
-      //     action: "Replaced with previous duplicate files",
-      //   };
-      // }
-
       res.status(200).send(result);
     } catch (error) {
-      // if (error.code && error.code == 11000) {
-      //   return res
-      //     .status(400)
-      //     .send({ message: "Some file are duplicate,kindly change name" });
-      // }
       res.status(500).send(error);
     }
   }
@@ -77,10 +47,13 @@ router.get(
   passport.authenticate("teacher-rule", { session: false }),
   teacherNotes,
   async (req, res) => {
-    let allNotes = req.allNotes;
-    let allNames = req.allNames;
+    try {
+      const notes = await Note.find();
 
-    res.send({ allNotes, allNames });
+      res.send(notes);
+    } catch (error) {
+      res.status(500).send(error);
+    }
   }
 );
 
@@ -104,8 +77,9 @@ router.delete(
   passport.authenticate("teacher-rule", { session: false }),
   teacherNotes,
   async (req, res) => {
-    const file = req.body.path;
-    const result = Note.find().select({ properties: 1 });
+    const file = req.body.file;
+    const result = Note.findOneAndDelete({ filesPath: file });
+    res.send(result);
   }
 );
 

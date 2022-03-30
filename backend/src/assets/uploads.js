@@ -6,7 +6,6 @@ require("dotenv").config();
 
 const checkDuplication = async (name, direc) => {
   const notes = await Note.find({});
-
   let arr = [];
 
   for (let objs of notes) {
@@ -29,10 +28,15 @@ var notesStorage = multer.diskStorage({
     cb(null, __dirname + "/notes/" + req.dir);
   },
   filename: async (req, file, cb) => {
-    file.fullPath = process.env.DIR_PATH + req.dir + "/" + file.originalname;
-    file.name = file.originalname.split(".")[0];
+    let nameSplits = file.originalname.split(".");
+    let ext = "." + nameSplits[nameSplits.length - 1];
+    nameSplits.pop();
+    let extractedName = nameSplits.join("");
+    file.name = extractedName + "-" + Date.now() + ext;
+    file.fullPath = process.env.DIR_PATH + req.dir + "/" + file.name;
+    file.extractedName = extractedName;
 
-    cb(null, file.originalname);
+    cb(null, file.name);
   },
 });
 
