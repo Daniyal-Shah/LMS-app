@@ -35,6 +35,7 @@ var notesStorage = multer.diskStorage({
     file.name = extractedName + "-" + Date.now() + ext;
     file.fullPath = process.env.DIR_PATH + req.dir + "/" + file.name;
     file.extractedName = extractedName;
+    file.rootDirectory = process.env.DIR_PATH + req.dir + "/";
 
     cb(null, file.name);
   },

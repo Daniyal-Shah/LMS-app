@@ -77,8 +77,33 @@ router.delete(
   passport.authenticate("teacher-rule", { session: false }),
   teacherNotes,
   async (req, res) => {
-    const file = req.body.file;
-    const result = Note.findOneAndDelete({ filesPath: file });
+    const file = process.env.DIR_PATH + req.dir + "/" + req.body.file;
+
+    const result = await Note.findOneAndDelete({
+      filesPath: file,
+    });
+
+    fs.unlink(file, function (err) {
+      if (err) throw err;
+      // if no error, file has been deleted successfully
+      console.log("File deleted!");
+    });
+
+    res.send(result);
+  }
+);
+
+router.put(
+  "/notes/:courseId",
+  passport.authenticate("teacher-rule", { session: false }),
+  teacherNotes,
+  async (req, res) => {
+    const result = await Note.findById({ _id: req.body.id });
+
+    result.visibilty = !result.visibilty;
+
+    await result.save();
+
     res.send(result);
   }
 );
