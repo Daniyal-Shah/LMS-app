@@ -24,12 +24,5 @@ module.exports = async function (req, res, next) {
   req.folderPath =
     process.env.DIR_PATH + req.dir + "/assignment-" + req.assignmentNumber;
 
-  fs.rmSync(req.folderPath, { recursive: true, force: true }, (err) => {
-    if (err) {
-      return console.log("error occurred in deleting directory", err);
-    }
-    console.log("Directory deleted successfully");
-  });
-
   next();
 };

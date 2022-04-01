@@ -12,7 +12,7 @@ module.exports = async function (req, res, next) {
     teacherId: req.user.teacherId,
   });
 
-  if (!course) return res.status(401).send("You such course found");
+  if (!course) return res.status(401).send("No such course found");
 
   const assignments = await Assignment.find({
     courseId: req.params.courseId,

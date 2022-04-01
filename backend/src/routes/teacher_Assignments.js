@@ -14,6 +14,7 @@ const { Quiz } = require("../models/quiz");
 const { Note } = require("../models/note");
 const teacherAssignments_add = require("../middlewares/teacherAssignments_add");
 const teacherAssignments_delete = require("../middlewares/teacherAssignment_delete");
+const teacherAssignments_update = require("../middlewares/teacherAssignment_update");
 
 const { assignmentMulter } = require("../assets/uploads");
 
@@ -32,14 +33,15 @@ router.post(
       assignment.teacherId = req.user._id;
       assignment.courseId = req.params.courseId;
       assignment.folderPath = req.folderPath;
+      assignment.assignmentNumber = req.assignmentNumber;
 
       //Body Api Attributes
       assignment.links = req.body.links ? req.body.links : [];
       assignment.instructions = req.body.instructions
         ? req.body.instructions
         : [];
-
-      assignment.assignmentNumber = req.assignmentNumber;
+      assignment.startTime = req.body.startTime ? req.body.startTime : null;
+      assignment.endTime = req.body.endTime ? req.body.endTime : null;
 
       const result = await assignment.save();
 
@@ -71,11 +73,26 @@ router.delete(
 router.patch(
   "/assignment/:assignmentNo/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
-  teacherAssignments_add,
+  teacherAssignments_update,
   assignmentMulter.array("assignments"),
   async (req, res) => {
     try {
-      res.send({ message: "Successfull" });
+      const assignment = await Assignment.findOne({
+        courseId: req.params.courseId,
+        assignmentNumber: req.params.assignmentNo,
+      });
+
+      //Body Api Attributes
+      assignment.links = req.body.links ? req.body.links : [];
+      assignment.instructions = req.body.instructions
+        ? req.body.instructions
+        : [];
+      assignment.startTime = req.body.startTime ? req.body.startTime : null;
+      assignment.endTime = req.body.endTime ? req.body.endTime : null;
+
+      const result = await assignment.save();
+
+      res.send(result);
     } catch (error) {
       res.send(error);
     }

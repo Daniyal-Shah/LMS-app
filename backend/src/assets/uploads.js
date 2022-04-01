@@ -64,8 +64,8 @@ var assignmentStorage = multer.diskStorage({
       file.name;
 
     file.extractedName = extractedName;
-    file.rootDirectory =
-      process.env.DIR_PATH + req.dir + "/assignment-" + req.assignmentNumber;
+    // file.rootDirectory =
+    //   process.env.DIR_PATH + req.dir + "/assignment-" + req.assignmentNumber;
 
     cb(null, file.name);
   },
