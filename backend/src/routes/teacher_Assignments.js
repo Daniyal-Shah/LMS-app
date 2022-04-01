@@ -17,15 +17,22 @@ const teacherAssignments = require("../middlewares/teacherAssignments");
 const { assignmentMulter } = require("../assets/uploads");
 
 const getTeacherAuth = require("../middlewares/teacherAuth");
+const { Assignment } = require("../models/assignment");
 getTeacherAuth();
 
 router.post(
   "/assignment/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
   teacherAssignments,
-  //   assignmentMulter.array("notes"),
+  assignmentMulter.array("assignments"),
   async (req, res) => {
-    return res.send("pass");
+    const assignment = new Assignment();
+    assignment.teacherId = req.user._id;
+    assignment.courseId = req.params.courseId;
+    assignment.folderPath = req.rootDirectory;
+    const result = await assignment.save();
+
+    return res.send(result);
   }
 );
 

@@ -12,7 +12,9 @@ const assignmentSchema = mongoose.Schema({
     required: true,
   },
 
-  files: [{ type: String }],
+  folderPath: { type: String, required: true },
+
+  instructions: [{ type: String }],
   links: [{ type: String }],
 
   submissions: [

@@ -43,11 +43,12 @@ var notesStorage = multer.diskStorage({
 
 var notesMulter = multer({ storage: notesStorage });
 
+var dest = (req) =>
+  __dirname + "/notes/" + req.dir + "/assignment-" + req.assignmentNumber;
+
 var assignmentStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, __dirname + "/notes/" + req.dir) +
-      "/assignment-" +
-      req.assignmentNumber;
+    cb(null, dest(req));
   },
   filename: async (req, file, cb) => {
     let nameSplits = file.originalname.split(".");
