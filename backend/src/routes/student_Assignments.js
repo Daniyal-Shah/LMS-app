@@ -27,8 +27,30 @@ router.post(
   studentAssignmentMulter.array("assignments"),
 
   async (req, res) => {
-    let user = req.user;
-    res.send(user);
+    const assignment = await Assignment.findOne({
+      courseId: req.params.courseId,
+      assignmentNo: req.params.assignmentNo,
+    });
+
+    if (!assignment) return res.status(401).send("Not found any assignment");
+
+    if (!req.files)
+      return res.status(400).send({ message: "Submission can not be empty" });
+
+    let allFiles = [];
+
+    req.files.map((i) => {
+      allFiles.push("" + i.path);
+    });
+
+    assignment.submissions.push({
+      studentId: req.user._id,
+      submitFiles: allFiles,
+    });
+
+    const result = await assignment.save();
+
+    res.send(result);
   }
 );
 

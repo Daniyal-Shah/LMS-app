@@ -15,7 +15,7 @@ module.exports = async function (req, res, next) {
   let enrollment = false;
 
   course.enrolledStudents.map((item) => {
-    if (item.studentId == req.user.studentId) {
+    if ("" + item.studentId == "" + req.user._id) {
       enrollment = true;
     }
   });

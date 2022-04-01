@@ -25,6 +25,8 @@ module.exports = async function (req, res, next) {
   req.folderPath =
     process.env.DIR_PATH + req.dir + "/assignment-" + req.assignmentNumber;
 
+  if (!fs.existsSync(req.rootDirectory)) fs.mkdirSync(req.rootDirectory);
+
   if (
     !fs.existsSync(
       "./src/assets/notes/" + req.dir + "/assignment-" + req.assignmentNumber

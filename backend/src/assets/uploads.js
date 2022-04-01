@@ -71,6 +71,7 @@ var studentAssignmentStorage = multer.diskStorage({
       req.dir +
       "/assignment-" +
       req.assignmentNumber +
+      "/" +
       file.name;
 
     file.extractedName = extractedName;
