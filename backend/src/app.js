@@ -11,6 +11,7 @@ const teacherLogin = require("./routes/teacher_Login");
 const teacherCourses = require("./routes/teacher_Courses");
 const teacherNotes = require("../src/routes/teacher_Notes");
 const teacherQuiz = require("./routes/teacher_quiz");
+const teacherAssignment = require("./routes/teacher_Assignments");
 
 const studentLogin = require("./routes/student_Login");
 const studentCourses = require("./routes/student_Courses");
@@ -23,7 +24,13 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 app.use("/admin", adminRoute);
-app.use("/teacher", [teacherNotes, teacherQuiz, teacherLogin, teacherCourses]);
+app.use("/teacher", [
+  teacherNotes,
+  teacherQuiz,
+  teacherLogin,
+  teacherCourses,
+  teacherAssignment,
+]);
 app.use("/student", [studentCourses, studentLogin, studentActivities]);
 
 app.listen(Port, () => {

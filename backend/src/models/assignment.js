@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const assignmentSchema = mongoose.Schema({
   teacherId: {
     type: mongoose.Schema.Types.ObjectId,
-    refer: "Student",
+    refer: "Teacher",
     required: true,
   },
   courseId: {
@@ -12,19 +12,20 @@ const assignmentSchema = mongoose.Schema({
     required: true,
   },
 
-  files: { type: Array },
+  files: [{ type: String }],
+  links: [{ type: String }],
 
   submissions: [
     {
       studentId: { type: mongoose.Schema.Types.ObjectId, refer: "Student" },
-      submitFiles: { type: Array },
-      submissionDate: { type: Array },
+      submitFiles: [{ type: String }],
+      submissionDate: { type: Date, default: Date.now() },
     },
   ],
 
   startTime: { type: Date, default: Date.now() },
   endTime: { type: Date, default: Date.now() },
-  visibilty: { type: Boolean, default: true, required: true },
+  visibilty: { type: Boolean, default: true },
   dateCreated: { type: Date, default: Date.now() },
 });
 
