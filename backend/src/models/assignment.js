@@ -12,7 +12,9 @@ const assignmentSchema = mongoose.Schema({
     required: true,
   },
 
-  folderPath: { type: String, required: true },
+  assignmentNumber: { type: String, required: true, unique: true },
+
+  folderPath: { type: String, required: true, unique: true },
 
   instructions: [{ type: String }],
   links: [{ type: String }],

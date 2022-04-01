@@ -12,14 +12,17 @@ module.exports = async function (req, res, next) {
     teacherId: req.user.teacherId,
   });
 
-  const assignments = await Assignment.find({ courseId: req.params.courseId });
+  if (!course) return res.status(401).send("You such course found");
 
-  if (!course) return res.status(401).send("You can't access to this course");
+  const assignments = await Assignment.find({
+    courseId: req.params.courseId,
+  });
 
-  req.dir = course.name.replaceAll(" ", "_");
   req.assignmentNumber = assignments.length + 1;
 
-  req.rootDirectory =
+  req.dir = course.name.replaceAll(" ", "_");
+  req.rootDirectory = process.env.DIR_PATH + req.dir;
+  req.folderPath =
     process.env.DIR_PATH + req.dir + "/assignment-" + req.assignmentNumber;
 
   if (

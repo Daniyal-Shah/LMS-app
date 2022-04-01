@@ -12,7 +12,8 @@ const { Teacher, validateTeacher } = require("../models/teacher");
 const { Course, validateCourse } = require("../models/course");
 const { Quiz } = require("../models/quiz");
 const { Note } = require("../models/note");
-const teacherAssignments = require("../middlewares/teacherAssignments");
+const teacherAssignments_add = require("../middlewares/teacherAssignments_add");
+const teacherAssignments_delete = require("../middlewares/teacherAssignment_delete");
 
 const { assignmentMulter } = require("../assets/uploads");
 
@@ -23,16 +24,61 @@ getTeacherAuth();
 router.post(
   "/assignment/:courseId",
   passport.authenticate("teacher-rule", { session: false }),
-  teacherAssignments,
+  teacherAssignments_add,
   assignmentMulter.array("assignments"),
   async (req, res) => {
-    const assignment = new Assignment();
-    assignment.teacherId = req.user._id;
-    assignment.courseId = req.params.courseId;
-    assignment.folderPath = req.rootDirectory;
-    const result = await assignment.save();
+    try {
+      const assignment = new Assignment();
+      assignment.teacherId = req.user._id;
+      assignment.courseId = req.params.courseId;
+      assignment.folderPath = req.folderPath;
 
-    return res.send(result);
+      //Body Api Attributes
+      assignment.links = req.body.links ? req.body.links : [];
+      assignment.instructions = req.body.instructions
+        ? req.body.instructions
+        : [];
+
+      assignment.assignmentNumber = req.assignmentNumber;
+
+      const result = await assignment.save();
+
+      return res.send(result);
+    } catch (error) {
+      res.send(error);
+    }
+  }
+);
+
+router.delete(
+  "/assignment/:assignmentNo/:courseId",
+  passport.authenticate("teacher-rule", { session: false }),
+  teacherAssignments_delete,
+  async (req, res) => {
+    try {
+      const result = await Assignment.findOneAndDelete({
+        courseId: req.params.courseId,
+        assignmentNumber: req.params.assignmentNo,
+      });
+
+      res.send(result);
+    } catch (error) {
+      res.send(error);
+    }
+  }
+);
+
+router.patch(
+  "/assignment/:assignmentNo/:courseId",
+  passport.authenticate("teacher-rule", { session: false }),
+  teacherAssignments_add,
+  assignmentMulter.array("assignments"),
+  async (req, res) => {
+    try {
+      res.send({ message: "Successfull" });
+    } catch (error) {
+      res.send(error);
+    }
   }
 );
 

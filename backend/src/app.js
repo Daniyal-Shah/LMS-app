@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const Port = process.env.PORT | 8000;
 const bodyParser = require("body-parser");
-
+const fs = require("fs");
 //Routes
 const adminRoute = require("./routes/admins");
 const teacherLogin = require("./routes/teacher_Login");
