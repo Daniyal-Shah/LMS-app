@@ -38,7 +38,7 @@ router.post("/register", async (req, res) => {
       student = Student(req.body);
       student.studentId = makeStudentId(student, 0);
     }
-
+    student.courses = [];
     student.password = await bcrypt.hash(student.password, 10);
     const result = await student.save();
     res.status(201).send(result);

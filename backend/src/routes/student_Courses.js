@@ -34,24 +34,24 @@ router.post(
 
         let alreadyEnrolled = false;
         course.enrolledStudents.map((i) => {
-          if (i.studentId === req.user.studentId) {
+          if ("" + i.studentId == "" + req.user._id) {
             alreadyEnrolled = true;
           }
         });
 
-        if (alreadyEnrolled)
+        if (alreadyEnrolled) {
           return res
             .status(401)
             .send("You are already enrolled in this course");
-
-        course.enrolledStudents.push({
-          studentId: req.user.studentId,
-
-          enrolledDate: Date.now(),
-        });
+        }
 
         const student = await Student.findById({ _id: req.user._id });
-        student.courses.push([course._id, course.name]);
+
+        course.enrolledStudents.push({
+          studentId: req.user._id,
+        });
+
+        student.courses.push({ courseId: course._id });
 
         const result1 = await course.save();
         const result2 = await student.save();

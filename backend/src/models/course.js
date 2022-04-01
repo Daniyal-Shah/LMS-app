@@ -12,7 +12,16 @@ const courseSchema = mongoose.Schema({
   },
   enrollmentCode: { type: String, max: 15, min: 5, unique: true },
   dateCreated: { type: Date, default: Date.now() },
-  enrolledStudents: { type: Array, default: [] },
+  enrolledStudents: [
+    {
+      studentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        refer: "Student",
+        unique: true,
+      },
+      enrolledDate: { type: Date, default: Date.now() },
+    },
+  ],
 });
 
 courseSchema.methods.generateAuthToken = function () {

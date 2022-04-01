@@ -15,7 +15,16 @@ const studentSchema = mongoose.Schema({
     enum: ["BBA", "CS", "EE", "AAF", "BED", "NA"],
     default: "NA",
   },
-  courses: { type: Array, default: [] },
+  courses: [
+    {
+      courseId: {
+        type: mongoose.Schema.Types.ObjectId,
+        refer: "Course",
+        unique: true,
+      },
+      enrolledDate: { type: Date, default: Date.now() },
+    },
+  ],
   dateCreated: { type: Date, default: Date.now() },
 });
 
@@ -33,7 +42,7 @@ function validate(item) {
     gender: Joi.string().required(),
     fatherName: Joi.string().max(30).required(),
     department: Joi.string().required(),
-    courses: Joi.array().required(),
+    // courses: Joi.array().required(),
   });
 
   return schema.validate(item);
