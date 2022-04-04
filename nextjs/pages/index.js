@@ -40,7 +40,9 @@ export default function Index() {
           onChange={formik.handleChange}
           error={formik.touched.email && Boolean(formik.errors.email)}
           helperText={formik.touched.email && formik.errors.email}
+          style={{ marginBottom: "1rem" }}
         />
+
         <TextField
           fullWidth
           id="password"
@@ -49,6 +51,7 @@ export default function Index() {
           type="password"
           value={formik.values.password}
           onChange={formik.handleChange}
+          style={{ marginBottom: "1rem" }}
           error={formik.touched.password && Boolean(formik.errors.password)}
           helperText={formik.touched.password && formik.errors.password}
         />
