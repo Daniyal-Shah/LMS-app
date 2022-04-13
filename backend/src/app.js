@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const Port = process.env.PORT | 8000;
 const bodyParser = require("body-parser");
-const fs = require("fs");
+const cors = require("cors");
 //Routes
 const adminRoute = require("./routes/admins");
 const teacherLogin = require("./routes/teacher_Login");
@@ -20,7 +20,7 @@ const studentAssignments = require("./routes/student_Assignments");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
+app.use(cors());
 // app.use(express.static("public"));
 app.use(express.json());
 

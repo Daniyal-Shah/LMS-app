@@ -13,7 +13,7 @@ getTeacherAuth();
 
 router.get(
   "/courses",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("teacher-rule", { session: false }),
   async (req, res) => {
     try {
       const courses = await Course.find({ teacherId: req.user.teacherId });
