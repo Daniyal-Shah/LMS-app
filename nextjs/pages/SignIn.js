@@ -50,10 +50,16 @@ export default function SignIn() {
         email: "teacher2@gmail.com",
         password: "2password",
       });
-      console.log(data);
+
+      // const d = fs.readFileSync(process.cwd(), "data", "loginUser.json", {
+      //   encoding: "utf8",
+      //   flag: "r",
+      // });
+      // console.log(d);
 
       if (data.success) {
         let store = { role: "teacher", token: data.token };
+
         localStorage.setItem("loginTeacher", JSON.stringify(store));
         console.log(JSON.parse(localStorage.getItem("loginTeacher")));
 
