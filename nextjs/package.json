@@ -19,6 +19,7 @@
     "axios": "^0.26.1",
     "formik": "^2.2.9",
     "next": "latest",
+    "next-auth": "^4.3.2",
     "prop-types": "latest",
     "react": "latest",
     "react-dom": "latest",

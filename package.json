@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "server": "nodemon backend/src/app.js",
+    "client": "npm run dev --prefix nextjs",
+    "i-server": "npm i --prefix backend",
+    "i-client": "npm i --prefix nextjs",
+    "i-all-dep": "concurrently \"npm run i-server\" \"npm run i-client\"",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "dependencies": {
+    "concurrently": "^7.1.0"
+  }
+}
